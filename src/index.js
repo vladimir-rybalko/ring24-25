@@ -141,7 +141,7 @@ map.on("load", async () => {
 
   // Добавляем источник и слой с шестигранниками
   const hexSource = await new FlatGeobuf("fgb-hex", map, {
-    url: "../data/hex.fgb",
+    url: "/data/hex.fgb",
     minZoom: 8,
     idProperty: "_uid_",
   });
@@ -168,7 +168,7 @@ map.on("load", async () => {
 
   // Добавляем источник и слой с треками
   const trakSource = await new FlatGeobuf("fgb-traks", map, {
-    url: "../data/traks.fgb",
+    url: "/data/traks.fgb",
     minZoom: 8,
     idProperty: "FID",
   });
@@ -192,13 +192,13 @@ map.on("load", async () => {
   });
 
   // Регистрируем иконку для КП
-  const image = await map.loadImage("../public/icons/prisma.png");
+  const image = await map.loadImage("/icons/prisma.png");
   map.addImage("cat", image.data);
 
   // Добавляем источник данных для КП
   map.addSource("points", {
     type: "geojson",
-    data: "../data/kp.geojson",
+    data: "/data/kp.geojson",
   });
 
   // Добавляем слой КП на карту
