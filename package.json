@@ -2,10 +2,9 @@
   "name": "ring-24-app-2025",
   "private": true,
   "version": "0.0.1",
-  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "preview": "vite preview"
   },
   "devDependencies": {
