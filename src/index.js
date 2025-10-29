@@ -8,6 +8,7 @@ import FlatGeobuf from "mapbox-gl-flatgeobuf";
 
 import { LogoControl } from "./LogoControl";
 import { InfoControl } from "./InfoControl";
+import { FlightAnimation } from "./FlightModule";
 
 const map = new maplibregl.Map({
   container: "app",
@@ -133,6 +134,24 @@ map.on("load", async () => {
     },
   });
 
+  
+    // Добавляем источник и слой с шестигранниками
+  // const elevSource = await new FlatGeobuf("fgb-elev", map, {
+  //   url: "/ring24-25/data/elev.fgb",
+  //   minZoom: 8,
+  //   idProperty: "ID",
+  // });
+
+  // map.addLayer({
+  //   id: "elev-lyr",
+  //   source: "fgb-elev",
+  //   type: "line",
+  //   paint: {
+  //     "line-color": "rgba(255,255,255, 50%)",
+  //     // "line-width": ["match", ["get", "evel"], 1, 1, 0.5],
+  //   },
+  // });
+
   // Добавим высотную основу в сцену карты
   map.setTerrain({
     source: "terrainSource",
@@ -227,4 +246,20 @@ map.on("load", async () => {
       center: e.features[0].geometry.coordinates,
     });
   });
+
+  fetch('/ring24-25/data/flight-path.geojson')
+  .then(response => response.json())
+  .then(geojsonData => {
+    // Создаём экземпляр облёта
+    const flight = new FlightAnimation(map, geojsonData, {
+      zoom: 14,
+      pitch: 60,
+      speed: 0.2,
+      rotationInterval: 7
+    });
+    // Запускаем облёт
+    flight.start();
+
+  });
+  
 });
