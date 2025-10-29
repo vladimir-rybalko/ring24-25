@@ -67,7 +67,7 @@ map.on("load", async () => {
 
   map.addControl(
     new LogoControl({
-      image: "../public/icons/logo_big.png",
+      image: "/ring24-25/icons/logo_big.png",
       width: 100,
       opacity: 0.9,
       link: "https://kolco24.ru/race/8/",
@@ -141,7 +141,7 @@ map.on("load", async () => {
 
   // Добавляем источник и слой с шестигранниками
   const hexSource = await new FlatGeobuf("fgb-hex", map, {
-    url: "/data/hex.fgb",
+    url: "/ring24-25/data/hex.fgb",
     minZoom: 8,
     idProperty: "_uid_",
   });
@@ -168,7 +168,7 @@ map.on("load", async () => {
 
   // Добавляем источник и слой с треками
   const trakSource = await new FlatGeobuf("fgb-traks", map, {
-    url: "/data/traks.fgb",
+    url: "/ring24-25/data/traks.fgb",
     minZoom: 8,
     idProperty: "FID",
   });
@@ -192,13 +192,13 @@ map.on("load", async () => {
   });
 
   // Регистрируем иконку для КП
-  const image = await map.loadImage("/icons/prisma.png");
+  const image = await map.loadImage("/ring24-25/icons/prisma.png");
   map.addImage("cat", image.data);
 
   // Добавляем источник данных для КП
   map.addSource("points", {
     type: "geojson",
-    data: "/data/kp.geojson",
+    data: "/ring24-25/data/kp.geojson",
   });
 
   // Добавляем слой КП на карту
