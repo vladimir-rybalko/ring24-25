@@ -11,9 +11,10 @@
     "vite": "^7.1.7"
   },
   "dependencies": {
-    "maplibre-gl": "5.9.0",
-    "maplibre-contour": "0.1.0",
     "mapbox-gl-flatgeobuf": "0.0.2",
-    "maplibre-theme": "1.0.0"
+    "maplibre-contour": "0.1.0",
+    "maplibre-gl": "5.9.0",
+    "maplibre-theme": "1.0.0",
+    "pmtiles": "^4.3.0"
   }
 }

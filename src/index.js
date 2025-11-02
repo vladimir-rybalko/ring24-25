@@ -5,6 +5,7 @@ import "./styles.css";
 import * as maplibregl from "maplibre-gl";
 import mlcontour from "maplibre-contour";
 import FlatGeobuf from "mapbox-gl-flatgeobuf";
+import * as pmtiles from "pmtiles";
 
 import { LogoControl } from "./LogoControl";
 import { InfoControl } from "./InfoControl";
@@ -23,6 +24,14 @@ const map = new maplibregl.Map({
   attributionControl: false,
 });
 
+// Добавляем протокол pmtiles
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol('pmtiles', protocol.tile);
+
+const PMTILES_URL = '/ring24-25/data/elev.pmtiles';
+const p = new pmtiles.PMTiles(PMTILES_URL);
+protocol.add(p);
+    
 const elevationUrl =
   "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
@@ -87,28 +96,33 @@ map.on("load", async () => {
   });
 
   // Добавим источник для изолиний рельефа
-  map.addSource("contour-source", {
+  // map.addSource("contour-source", {
+  //   type: "vector",
+  //   tiles: [
+  //     demSource.contourProtocolUrl({
+  //       // convert meters to feet, default=1 for meters
+  //       multiplier: 3.28084,
+  //       thresholds: {
+  //         // zoom: [minor, major]
+  //         11: [100, 500],
+  //         12: [50, 200],
+  //         14: [20, 100],
+  //         15: [10, 50],
+  //       },
+  //       // optional, override vector tile parameters:
+  //       contourLayer: "contours",
+  //       elevationKey: "ele",
+  //       levelKey: "level",
+  //       extent: 4096,
+  //       buffer: 1,
+  //     }),
+  //   ],
+  //   maxzoom: 15,
+  // });
+  map.addSource("isolines", {
     type: "vector",
-    tiles: [
-      demSource.contourProtocolUrl({
-        // convert meters to feet, default=1 for meters
-        multiplier: 3.28084,
-        thresholds: {
-          // zoom: [minor, major]
-          11: [100, 500],
-          12: [50, 200],
-          14: [20, 100],
-          15: [10, 50],
-        },
-        // optional, override vector tile parameters:
-        contourLayer: "contours",
-        elevationKey: "ele",
-        levelKey: "level",
-        extent: 4096,
-        buffer: 1,
-      }),
-    ],
-    maxzoom: 15,
+    url: `pmtiles://${PMTILES_URL}`,
+    attribution: '© <a href="https://openstreetmap.org/copyright">elevation data &copy;</a>'
   });
 
   // Добавим слой эффект hillshade (тени) на основе высотного слоя
@@ -123,24 +137,51 @@ map.on("load", async () => {
 
   // Добавим слой с изолиниями
   map.addLayer({
-    id: "contours-layer",
-    type: "line",
-    source: "contour-source",
-    "source-layer": "contours",
-    paint: {
-      "line-color": "rgba(255,255,255, 50%)",
-      // level = highest index in thresholds array the elevation is a multiple of
-      "line-width": ["match", ["get", "level"], 1, 1, 0.5],
-    },
-  });
+  id: "isolines",
+  type: "line",
+  source: "isolines",
+  "source-layer": "elev",
+  paint: {
+    "line-color": [
+      "step",
+      ["get", "minzoom"],
+      "#222", 10, // если minzoom=10
+      "#444", 11,
+      "#666", 12,
+      "#888", 13,
+      "#aaa"  // по умолчанию
+    ],
+    "line-width": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      10, 1.5,
+      14, 0.6
+    ]
+  },
+  filter: [">=", ["zoom"], ["get", "minzoom"]] // показывать только начиная с minzoom
+});
+
+  // Добавим слой с изолиниями
+  // map.addLayer({
+  //   id: "contours-layer",
+  //   type: "line",
+  //   source: "contour-source",
+  //   "source-layer": "contours",
+  //   paint: {
+  //     "line-color": "rgba(255,255,255, 50%)",
+  //     // level = highest index in thresholds array the elevation is a multiple of
+  //     "line-width": ["match", ["get", "level"], 1, 1, 0.5],
+  //   },
+  // });
 
   
     // Добавляем источник и слой с шестигранниками
-  // const elevSource = await new FlatGeobuf("fgb-elev", map, {
-  //   url: "/ring24-25/data/elev.fgb",
-  //   minZoom: 8,
-  //   idProperty: "ID",
-  // });
+  const elevSource = await new FlatGeobuf("fgb-elev", map, {
+    url: "/ring24-25/data/elev.fgb",
+    minZoom: 8,
+    idProperty: "ID",
+  });
 
   // map.addLayer({
   //   id: "elev-lyr",
